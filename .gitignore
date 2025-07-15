@@ -10,8 +10,8 @@ src/obj/
 Booking_System/.vs/Booking_System/v17/
 
 # Ignore build output folders
-Booking_System/bin/Debug/net9.0/
-Booking_System/obj/
+/bin/Debug/net9.0/
+obj/
 
 
 # Optional: Ignore user-specific files and configs

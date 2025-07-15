@@ -1,10 +1,12 @@
 ﻿using Booking_System.Data;
 using Booking_System.Models;
 using Humanizer.Localisation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
+[Authorize]
 public class BookingsController(ApplicationDbContext context) : Controller
 {
     private readonly ApplicationDbContext _context = context;
@@ -125,5 +127,43 @@ public class BookingsController(ApplicationDbContext context) : Controller
         ViewData["ResourceId"] = new SelectList(_context.Resources, "Id", "Name", booking.ResourceId);
         return View(booking);
     }
+   
+    // GET: Bookings/Details/5
+    public async Task<IActionResult> Details(int? id)
+    {
+        if (id == null) return NotFound();
+
+        var booking = await _context.Bookings
+                                    .Include(b => b.Resource)
+                                    .FirstOrDefaultAsync(m => m.Id == id);
+
+        return booking == null ? NotFound() : View(booking);
+    }
+    // GET: Bookings/Delete/5  → confirmation page
+    public async Task<IActionResult> Delete(int? id)
+    {
+        if (id == null) return NotFound();
+
+        var booking = await _context.Bookings
+                                    .Include(b => b.Resource)
+                                    .FirstOrDefaultAsync(m => m.Id == id);
+
+        return booking == null ? NotFound() : View(booking);
+    }
+
+    // POST: Bookings/Delete/5  → actually removes row
+    [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        var booking = await _context.Bookings.FindAsync(id);
+        if (booking != null)
+        {
+            _context.Bookings.Remove(booking);
+            await _context.SaveChangesAsync();
+        }
+        return RedirectToAction(nameof(Index));
+    }
+
 
 }

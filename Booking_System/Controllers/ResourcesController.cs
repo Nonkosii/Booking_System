@@ -1,8 +1,10 @@
 ﻿using Booking_System.Data;
 using Booking_System.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+[Authorize]
 public class ResourcesController(ApplicationDbContext context) : Controller
 {
     private readonly ApplicationDbContext _context = context;

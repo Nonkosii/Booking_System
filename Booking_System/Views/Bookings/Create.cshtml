@@ -1,0 +1,17 @@
+﻿@model Booking_System.Models.Booking
+@{
+    ViewData["Title"] = "Create Booking";
+}
+
+<h2 class="text-center">Create Booking</h2>
+
+<form asp-action="Create" method="post">
+    <partial name="_BookingForm" model="Model" />
+
+    <button type="submit" class="btn btn-success">Create</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -14,6 +14,11 @@ namespace Booking_System.Controllers
 
         public IActionResult Index()
         {
+            if (User.Identity!.IsAuthenticated)
+            {
+                return RedirectToAction("Dashboard", "Home");
+            }
+
             return View();
         }
 

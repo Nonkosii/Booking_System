@@ -1,5 +1,22 @@
-﻿################################################################################
-# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
-################################################################################
+# Ignore Visual Studio temporary files, build results, and user-specific files
+.vs/
+src/.vs/
 
-/.vs/Booking_System
+# Ignore build output folders
+src/bin/
+src/obj/
+
+# Ignore Visual Studio workspace folder for your project
+Booking_System/.vs/Booking_System/v17/
+
+# Ignore build output folders
+Booking_System/bin/Debug/net9.0/
+Booking_System/obj/
+
+
+# Optional: Ignore user-specific files and configs
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+

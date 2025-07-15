@@ -1,0 +1,29 @@
+﻿@model Booking_System.Models.Booking
+@{
+    ViewData["Title"] = "Booking Details";
+}
+
+<h2 class="mb-4 text-center">Booking Details</h2>
+
+<dl class="row">
+    <dt class="col-sm-3">Resource</dt>
+    <dd class="col-sm-9">@Model.Resource?.Name</dd>
+
+    <dt class="col-sm-3">Start Time</dt>
+    <dd class="col-sm-9">@Model.StartTime:g</dd>
+
+    <dt class="col-sm-3">End Time</dt>
+    <dd class="col-sm-9">@Model.EndTime:g</dd>
+
+    <dt class="col-sm-3">Booked By</dt>
+    <dd class="col-sm-9">@Model.BookedBy</dd>
+
+    <dt class="col-sm-3">Purpose</dt>
+    <dd class="col-sm-9">@Model.Purpose</dd>
+</dl>
+
+<div class="text-center">
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>

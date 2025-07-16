@@ -20,3 +20,4 @@ obj/
 *.userosscache
 *.sln.docstates
 
+/src/Booking_System/bin/Debug/net9.0

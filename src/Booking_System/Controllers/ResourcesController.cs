@@ -1,13 +1,15 @@
 ﻿using Booking_System.Data;
 using Booking_System.Models;
+using Booking_System.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 [Authorize]
-public class ResourcesController(ApplicationDbContext context) : Controller
+public class ResourcesController(ApplicationDbContext context, IResourceService resourceService) : Controller
 {
     private readonly ApplicationDbContext _context = context;
+    private readonly IResourceService _resourceService = resourceService;
 
     // GET: Resources/Index
     public async Task<IActionResult> Index(string? search)
@@ -115,22 +117,35 @@ public class ResourcesController(ApplicationDbContext context) : Controller
         return View(resource);
     }
 
-    // POST: Resources/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var resource = await _context.Resources.FindAsync(id);
+        var resource = await _context.Resources
+            .Include(r => r.Bookings) 
+            .FirstOrDefaultAsync(r => r.Id == id);
 
-        if (resource != null)
+        if (resource == null)
         {
-            _context.Resources.Remove(resource);
-            await _context.SaveChangesAsync();
-            TempData["Success"] = "Resource deleted successfully.";
+            return NotFound();
         }
+
+        // Check for existing bookings
+        bool canDelete = await _resourceService.CanDeleteResourceAsync(id);
+
+        if (!canDelete)
+        {
+            TempData["Error"] = "Cannot delete resource with existing bookings.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        _context.Resources.Remove(resource);
+        await _context.SaveChangesAsync();
+        TempData["Success"] = "Resource deleted successfully.";
 
         return RedirectToAction(nameof(Index));
     }
+
 
     private bool ResourceExists(int id)
     {

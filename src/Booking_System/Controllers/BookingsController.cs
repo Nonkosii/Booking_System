@@ -1,5 +1,6 @@
 ﻿using Booking_System.Data;
 using Booking_System.Models;
+using Booking_System.Services;
 using Humanizer.Localisation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,9 +8,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 [Authorize]
-public class BookingsController(ApplicationDbContext context) : Controller
+public class BookingsController(ApplicationDbContext context, IBookingService bookingService) : Controller
 {
     private readonly ApplicationDbContext _context = context;
+
+    private readonly IBookingService _bookingService = bookingService;
 
     // GET: Bookings
     public async Task<IActionResult> Index(DateTime? dateFilter)
@@ -18,7 +21,7 @@ public class BookingsController(ApplicationDbContext context) : Controller
                                .Include(b => b.Resource)
                                .AsQueryable();
 
-        // Optional date filter (e.g. ?dateFilter=2025-07-16)
+
         if (dateFilter.HasValue)
         {
             bookings = bookings.Where(b => b.StartTime.Date == dateFilter.Value.Date);
@@ -56,22 +59,20 @@ public class BookingsController(ApplicationDbContext context) : Controller
         }
 
         // Conflict check
-        var conflict = await _context.Bookings
-            .AnyAsync(b =>
-                b.ResourceId == booking.ResourceId &&
-                b.StartTime < booking.EndTime &&
-                b.EndTime > booking.StartTime
-            );
+        var existingBookings = await _context.Bookings
+                .Where(b => b.ResourceId == booking.ResourceId)
+                .ToListAsync();
 
-        if (conflict)
+        if (_bookingService.IsBookingConflicting(booking, existingBookings))
         {
-            ModelState.AddModelError("", "This resource is already booked during the requested time. Please choose another slot or adjust your times.");
+            ModelState.AddModelError("", "This resource is already booked during the requested time.");
         }
 
         if (ModelState.IsValid)
         {
             _context.Add(booking);
             await _context.SaveChangesAsync();
+            TempData["Success"] = "Booking added successfully.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -100,15 +101,14 @@ public class BookingsController(ApplicationDbContext context) : Controller
         if (booking.EndTime <= booking.StartTime)
             ModelState.AddModelError("", "End time must be after start time.");
 
-        var hasConflict = await _context.Bookings.AnyAsync(b =>
-            b.Id != booking.Id &&
-            b.ResourceId == booking.ResourceId &&
-            b.StartTime < booking.EndTime &&
-            b.EndTime > booking.StartTime
-        );
+        var existingBookings = await _context.Bookings
+                .Where(b => b.ResourceId == booking.ResourceId)
+                .ToListAsync();
 
-        if (hasConflict)
+        if (_bookingService.IsBookingConflicting(booking, existingBookings))
+        {
             ModelState.AddModelError("", "This resource is already booked during the requested time.");
+        }
 
         if (ModelState.IsValid)
         {
@@ -116,6 +116,7 @@ public class BookingsController(ApplicationDbContext context) : Controller
             {
                 _context.Update(booking);
                 await _context.SaveChangesAsync();
+                TempData["Success"] = "Booking updated successfully.";
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException)
@@ -127,7 +128,7 @@ public class BookingsController(ApplicationDbContext context) : Controller
         ViewData["ResourceId"] = new SelectList(_context.Resources, "Id", "Name", booking.ResourceId);
         return View(booking);
     }
-   
+
     // GET: Bookings/Details/5
     public async Task<IActionResult> Details(int? id)
     {
@@ -161,6 +162,7 @@ public class BookingsController(ApplicationDbContext context) : Controller
         {
             _context.Bookings.Remove(booking);
             await _context.SaveChangesAsync();
+            TempData["Success"] = "Booking deleted successfully.";
         }
         return RedirectToAction(nameof(Index));
     }

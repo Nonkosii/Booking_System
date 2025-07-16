@@ -1,4 +1,5 @@
 using Booking_System.Data;
+using Booking_System.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,6 +25,9 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequiredUniqueChars = 0;
 });
+
+builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<IResourceService, ResourceService>();
 
 builder.Services.AddControllersWithViews();
 

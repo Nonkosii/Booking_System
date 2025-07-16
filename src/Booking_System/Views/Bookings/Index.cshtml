@@ -5,6 +5,13 @@
 
 <h2 class="mb-4 text-center">Bookings</h2>
 
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+
 <a class="btn btn-primary mb-3" asp-action="Create">Add Booking</a>
 
 <form method="get" class="mb-3">

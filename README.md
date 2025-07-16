@@ -24,7 +24,7 @@ A simple web-based booking system built with ASP.NET Core MVC and Entity Framewo
 🚀 Getting Started
 1. Clone the Repository
 
-git clone https://github.com/nonkosii/booking-system.git
+git clone https://github.com/nonkosii/Booking_System.git
 cd booking-system
 
 2. Update Connection String
